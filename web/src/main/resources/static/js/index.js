@@ -1,43 +1,31 @@
 // Featured pioneers data
-const featuredCards = [
-    {
-        id: 1,
-        name: "James Gosling",
-        specialty: "Java Creator",
-        contribution: "Led the creation of the Java programming language at Sun Microsystems in 1995.",
-        price: 299.99,
-        imageUrl: "https://placecats.com/200/280"
-    },
-    {
-        id: 2,
-        name: "Patrick Naughton",
-        specialty: "Java Co-Creator",
-        contribution: "Key member of the Green Team that developed Java, created the original Java GUI library.",
-        price: 199.99,
-        imageUrl: "https://placecats.com/200/280"
-    },
-    {
-        id: 3,
-        name: "Mike Sheridan",
-        specialty: "Java Co-Creator",
-        contribution: "Original member of the Green Team, helped define Java's business requirements.",
-        price: 199.99,
-        imageUrl: "https://placecats.com/200/280"
-    },
-    {
-        id: 4,
-        name: "Bill Joy",
-        specialty: "Sun Co-Founder",
-        contribution: "Co-founder of Sun Microsystems, instrumental in Java's adoption and strategy.",
-        price: 249.99,
-        imageUrl: "https://placecats.com/200/280"
+function fetchFeaturedCards() {
+    if (document.getElementById("homepage")) {
+        fetch(`http://localhost:8080/mongo/cards/search?query=java`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`)
+                }
+                return response.json()
+            })
+            .then(data => {
+                console.log("Search results:", data)
+                if (data.length > 4){
+                    data = data.slice(0, 4)
+                }
+                renderCards(data)
+            })
+            .catch(error => {
+                console.error("Error fetching featured cards:", error)
+            })
     }
-];
+}
 
 // Render featured cards
 const featuredCardsContainer = document.getElementById('featured-cards');
 
-if (document.getElementById("homepage")) {
+function renderCards(featuredCards) {
+
     featuredCards.forEach(card => {
         const cardElement = document.createElement('div');
         cardElement.className = 'card';
@@ -46,8 +34,8 @@ if (document.getElementById("homepage")) {
                 <h4>${card.name}</h4>
                 <p class="set">${card.specialty}</p>
                 <div class="card-footer">
-                    <span class="price">$${card.price}</span>
-                    <button class="add-to-cart">Add to Cart</button>                    
+                    <span class="price">$${card.price}</span>                    
+                    <button class="add-to-cart" onclick="addToCart('${card._id}', ${card.price}, '${card.name}')">Add to Cart</button>                    
                 </div>
                 <p class="contribution">${card.contribution}</p>
             `;
@@ -96,3 +84,5 @@ document.querySelector("#programming-languages-card")?.addEventListener("click",
 document.querySelector("#theory-card")?.addEventListener("click", () => {
     window.location.href = "product-listing.html?specialty=Algorithms_Theory";
 })
+
+fetchFeaturedCards()

@@ -5,7 +5,6 @@ const maxPriceQuery = urlParams.get("maxPrice")
 const minPriceQuery = urlParams.get("minPrice")
 const sortQuery = urlParams.get("sort")
 const pageQuery = urlParams.get("page")
-const size = 8;
 const productListingCardsContainer = document.getElementById('product-listing-cards');
 if (pageQuery){
     document.getElementById("page-number").innerText = `${parseInt(pageQuery) + 1}`
@@ -13,48 +12,50 @@ if (pageQuery){
 if (searchQuery) {
     executeSearch(searchQuery)
 }
-else if (specialtyQuery || maxPriceQuery || minPriceQuery || sortQuery) {
-    sortAndFilter(maxPriceQuery, minPriceQuery, specialtyQuery, sortQuery)
+else if (specialtyQuery || maxPriceQuery || minPriceQuery) {
+    filter(maxPriceQuery, minPriceQuery, specialtyQuery)
 }
-else if (pageQuery){
-    displayAllCards(pageQuery)
-}
-else {
-    displayAllCards()
+else{
+    displayAllCards(pageQuery, sortQuery)
 }
 
-function sortAndFilter(maxPriceQuery, minPriceQuery, specialtyQuery, sortQuery) {
-    let myurl = "http://localhost:8080/api/cards/filter?"
-    if (sortQuery) {
-        myurl += `&sort=${sortQuery}`
-        document.getElementById("sort").value = sortQuery
-    }
+function filter(maxPriceQuery, minPriceQuery, specialtyQuery) {
+    let myurl = "http://localhost:8080/mongo/cards/filter"
     if (specialtyQuery) {
-        myurl += `&specialty=${specialtyQuery}`
+        myurl += `/specialty?specialty=${specialtyQuery}`
         document.getElementById("specialty").value = specialtyQuery
     }
-    if (minPriceQuery) {
-        myurl += `&minPrice=${minPriceQuery}`
-        document.getElementById("minPrice").value = minPriceQuery
-    }
-    if (maxPriceQuery) {
-        myurl += `&maxPrice=${maxPriceQuery}`
-        document.getElementById("maxPrice").value = maxPriceQuery
+    else if (minPriceQuery || maxPriceQuery) {
+        myurl += "/price?"
+        if (minPriceQuery) {
+            myurl += `&minPrice=${minPriceQuery}`
+            document.getElementById("minPrice").value = minPriceQuery
+        }
+        if (maxPriceQuery) {
+            myurl += `&maxPrice=${maxPriceQuery}`
+            document.getElementById("maxPrice").value = maxPriceQuery
+        }
     }
     doFetch(myurl)
 }
 
-function displayAllCards(page) {
+function displayAllCards(page, sort) {
+    let myurl = "http://localhost:8080/mongo/cards?"
     document.querySelector(".pagination").style.display = "block";
     if (!page){
-        page = 0
+        page=0
+    }
+    myurl+=`page=${page}&size=8`
+    if (sort){
+        myurl+=`&sort=${sort}`
+        document.getElementById("sort").value = sort;
     }
     document.getElementById("page-number").innerText = `${page+1}`;
-    doFetch(`http://localhost:8080/api/cards?page=${page}&size=8`)
+    doFetch(myurl)
 }
 
 function executeSearch(searchQuery) {
-    doFetch(`http://localhost:8080/api/cards/search?query=${encodeURIComponent(searchQuery)}`)
+    doFetch(`http://localhost:8080/mongo/cards/search?query=${encodeURIComponent(searchQuery)}`)
 }
 
 function doFetch(url) {
@@ -85,7 +86,7 @@ function renderCards(cards) {
                 <p class="set">${card.specialty}</p>
                 <div class="card-footer">
                     <span class="price">$${card.price}</span>
-                    <button class="add-to-cart">Add to Cart</button>                    
+                    <button class="add-to-cart" onclick="addToCart('${card._id}', ${card.price}, '${card.name}')">Add to Cart</button>                    
                 </div>
                 <p class="contribution">${card.contribution}</p>
             `
@@ -98,7 +99,7 @@ document.getElementById("back-page").addEventListener('click', () => {
     if (page_number === 1){
         return;
     }
-    displayAllCards(page_number-2)
+    displayAllCards(page_number-2, sortQuery)
 })
 
 document.getElementById("forward-page").addEventListener('click', () => {
@@ -106,10 +107,10 @@ document.getElementById("forward-page").addEventListener('click', () => {
     if (page_number === 13){
         return;
     }
-    displayAllCards(page_number)
+    displayAllCards(page_number, sortQuery)
 })
 
-document.getElementById("apply-filters").addEventListener("click", () => {
+function doFilter(){
     const params = new URLSearchParams();
 
     // Get sort value
@@ -128,9 +129,26 @@ document.getElementById("apply-filters").addEventListener("click", () => {
     if (specialty) params.append("specialty", specialty);
 
     // Redirect to the product details page with query parameters
-    window.location.href = `http://localhost:8080/product-listing.html?${params.toString()}`;
+    window.location.href = `product-listing.html?${params.toString()}`;
+}
+
+document.getElementById("apply-specialty-filter").addEventListener("click", () => {
+    document.getElementById("sort").value = ""
+    document.getElementById("minPrice").value = ""
+    document.getElementById("maxPrice").value = ""
+    doFilter()
 });
 
-document.getElementById("clear-filters").addEventListener("click", () => {
-    window.location.href = `http://localhost:8080/product-listing.html`;
-})
+document.getElementById("apply-price-filter").addEventListener("click", () => {
+    document.getElementById("sort").value = ""
+    document.getElementById("specialty").value = ""
+    doFilter()
+});
+
+
+document.getElementById("apply-sort").addEventListener("click", () => {
+    document.getElementById("specialty").value = ""
+    document.getElementById("minPrice").value = ""
+    document.getElementById("maxPrice").value = ""
+    doFilter()
+});
