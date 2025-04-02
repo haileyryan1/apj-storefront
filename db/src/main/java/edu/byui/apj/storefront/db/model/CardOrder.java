@@ -13,7 +13,8 @@ public class CardOrder {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
+            @JoinColumn(name = "cart_id")
     Cart cart;
 
     @OneToOne(cascade = CascadeType.ALL)

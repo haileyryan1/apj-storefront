@@ -22,12 +22,12 @@ public class CartRepositoryTest {
     @Test
     public void testFindCartsWithoutOrders() {
         Cart cart1 = new Cart();
-        cart1.setId("c2");
-        cart1.setPersonId("p2");
+        cart1.setId("c1");
+        cart1.setPersonId("p1");
 
         Cart cart2 = new Cart();
-        cart2.setId("c3");
-        cart2.setPersonId("p3");
+        cart2.setId("c2");
+        cart2.setPersonId("p2");
 
         cartRepository.save(cart1);
         cartRepository.save(cart2);
