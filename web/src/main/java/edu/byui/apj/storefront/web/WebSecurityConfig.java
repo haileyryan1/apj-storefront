@@ -19,8 +19,8 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/user-profile.html").permitAll()  // allow without auth
-                        .anyRequest().authenticated()  // everything else needs login
+                        .requestMatchers("/user-profile.html").authenticated()
+                        .anyRequest().permitAll()
                 )
                 .formLogin((form) -> form
                         .loginPage("/login.html")

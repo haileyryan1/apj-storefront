@@ -1,5 +1,6 @@
 package edu.byui.apj.storefront.jms.controller;
 
+import edu.byui.apj.storefront.jms.producer.OrderConfirmationProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

@@ -27,7 +27,7 @@ public class CartCleanupJob {
     public List<Cart> getCartsWithoutOrders() {
         try {
             List<Cart> carts = webClient.get()
-                    .uri("/cart/noorderLinks")
+                    .uri("/cart/noorder")
                     .retrieve()
                     .bodyToFlux(Cart.class)
                     .collectList()
